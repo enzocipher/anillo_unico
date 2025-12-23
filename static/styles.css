@@ -1,0 +1,54 @@
+:root{
+  --bg:#020503;
+  --accent:#3cff3c;
+  --glow:rgba(60,255,60,0.12);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}
+body{background:radial-gradient(ellipse at 25% 10%, rgba(40,60,40,0.06) 0%, var(--bg) 40%), var(--bg);color:var(--accent);}
+.center{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.button{display:inline-block;padding:12px 24px;border-radius:6px;background:#071008;color:var(--accent); text-decoration:none;font-weight:700;border:1px solid rgba(60,255,60,0.12)}
+
+/* generar page styles */
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:transparent}
+.scene{width:94vw;max-width:1400px;height:86vh;max-height:900px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border-radius:12px;position:relative;overflow:hidden;box-shadow:inset 0 0 120px rgba(0,0,0,0.6);border:1px solid rgba(60,255,60,0.06)}
+.starfield{position:absolute;inset:0;background:transparent}
+.star{position:absolute;background:white;border-radius:50%;opacity:0.9;filter:blur(0.3px)}
+
+.ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50vmin;height:50vmin;max-width:720px;max-height:720px;mix-blend-mode:screen}
+.circle{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.arc{position:absolute;inset:10px;border-radius:50%;border:6px solid transparent;border-top-color:var(--accent);box-shadow:0 0 40px var(--glow);transform:rotate(-90deg);}
+.arc.one{width:90%;height:90%;}
+.arc.two{width:75%;height:75%;border-top-color:#ffd97a;box-shadow:0 0 30px rgba(255,217,122,0.12)}
+.arc.three{width:60%;height:60%;border-top-color:#9bffb7;box-shadow:0 0 30px rgba(155,255,183,0.12)}
+
+.center-hub{position:absolute;width:56px;height:56px;background:linear-gradient(180deg,rgba(60,255,60,0.15) 10%,rgba(0,100,0,0.95) 90%);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 40px var(--glow);border:1px solid rgba(60,255,60,0.08)}
+
+.progress-text{position:absolute;left:18px;bottom:14px;font-weight:700;letter-spacing:1px;color:var(--accent)}
+
+.final{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .2s ease}
+.final.show{opacity:1;pointer-events:auto}
+.final .box{display:grid;place-items:center;gap:10px}
+.final .image{width:220px;height:220px;border-radius:12px;background:#0b0f08;display:grid;place-items:center;color:var(--accent);font-size:56px;border:1px solid rgba(60,255,60,0.06);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+.final .caption{color:var(--accent);opacity:0.95;font-weight:700}
+
+/* animation helpers */
+@keyframes spin {from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes draw{0%{stroke-dashoffset:1000}100%{stroke-dashoffset:0}}
+.rotate-slow{animation:spin 10s linear infinite}
+.rotate-fast{animation:spin 6s linear infinite}
+
+/* Hacker overlays */
+.hud{position:absolute;right:12px;top:12px;color:var(--accent);font-size:12px;opacity:0.95;background:rgba(0,0,0,0.25);padding:8px;border-radius:6px;border:1px solid rgba(60,255,60,0.04)}
+.terminal{position:absolute;left:12px;top:12px;width:340px;height:220px;background:rgba(0,0,0,0.28);border-radius:6px;padding:10px;overflow:hidden;border:1px solid rgba(60,255,60,0.04)}
+.terminal pre{margin:0;color:var(--accent);font-size:12px;line-height:1.15;max-height:100%;overflow:hidden}
+/* hide any scrollbars just in case */
+.terminal pre::-webkit-scrollbar{display:none}
+.terminal pre{ -ms-overflow-style:none; scrollbar-width:none }
+.matrix-canvas{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:0.18}
+.stream{position:absolute;right:8px;bottom:12px;font-size:11px;color:rgba(60,255,60,0.9);opacity:0.9}
+
+.caption{font-family:ui-monospace,monospace}
+
+/* small responsive */
+@media (max-width:640px){.scene{height:420px}}
