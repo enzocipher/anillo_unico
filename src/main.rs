@@ -15,14 +15,14 @@ async fn anillo(_req: HttpRequest) -> Result<NamedFile> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("Iniciando servidor en http://127.0.0.1:5000");
+    println!("Iniciando servidor en http://0.0.0.0:8080");
 
     HttpServer::new(|| {
         App::new()
             .service(Files::new("/static", "./static").show_files_listing().use_last_modified(true))
             .route("/", web::get().to(index))
             .route("/generar", web::get().to(generar))
-                .route("/anillo", web::get().to(anillo))
+            .route("/anillo", web::get().to(anillo))
     })
     .bind(("0.0.0.0", 8080))?
     .run()
