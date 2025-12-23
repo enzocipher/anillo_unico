@@ -24,7 +24,7 @@ async fn main() -> std::io::Result<()> {
             .route("/generar", web::get().to(generar))
                 .route("/anillo", web::get().to(anillo))
     })
-    .bind(("127.0.0.1", 5000))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }
