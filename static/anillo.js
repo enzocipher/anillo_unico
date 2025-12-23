@@ -1,4 +1,4 @@
-// Play the final sound when the /anillo page loads
+
 (function(){
   function playFinalSound(){
     try{
@@ -25,7 +25,7 @@
     }catch(e){ console.warn('WebAudio not available', e) }
   }
 
-  // WebGL torus renderer
+  
   function startRenderer(){
     const canvas = document.getElementById('glcanvas')
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
@@ -33,7 +33,7 @@
     function resize(){ canvas.width = Math.floor(canvas.clientWidth * devicePixelRatio); canvas.height = Math.floor(canvas.clientHeight * devicePixelRatio); gl.viewport(0,0,canvas.width,canvas.height) }
     window.addEventListener('resize', resize); resize()
 
-    // simple shader programs
+    
     const vs = `attribute vec3 position;attribute vec3 normal;attribute vec2 uv;uniform mat4 mvp;uniform mat4 model;varying vec3 vNormal;varying vec2 vUv;void main(){vNormal = mat3(model)*normal;vUv=uv;gl_Position = mvp * vec4(position,1.0);}`
     const fs = `precision mediump float;varying vec3 vNormal;varying vec2 vUv;uniform sampler2D tex;uniform vec3 light;void main(){vec3 n = normalize(vNormal);float l = max(dot(n,normalize(light)),0.15);vec4 color = texture2D(tex,vUv);gl_FragColor = vec4(color.rgb * l, color.a);}`
     function compile(src, type){ const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(s)); return s }
@@ -42,13 +42,13 @@
     const attPosition = gl.getAttribLocation(prog,'position'); const attNormal = gl.getAttribLocation(prog,'normal'); const attUv = gl.getAttribLocation(prog,'uv')
     const uniMvp = gl.getUniformLocation(prog,'mvp'); const uniModel = gl.getUniformLocation(prog,'model'); const uniTex = gl.getUniformLocation(prog,'tex'); const uniLight = gl.getUniformLocation(prog,'light')
 
-    // build torus geometry
-    // Create a torus where the tube cross-section can be flattened (scaleZ)
-    // and optionally include a smooth spiral groove (grooveDepth, grooveWidth, grooveTurns).
+    
+    
+    
     function createTorus(R, r, segR, segr, scaleZ = 0.5, grooveDepth = 0.0, grooveWidth = 0.6, grooveTurns = 1.0){
       const positions=[]; const normals=[]; const uvs=[]; const indices=[]
       const TWO_PI = Math.PI*2
-      function angleDiff(a,b){ // shortest signed difference
+      function angleDiff(a,b){ 
         let d = a - b
         while(d <= -Math.PI) d += TWO_PI
         while(d > Math.PI) d -= TWO_PI
@@ -58,26 +58,26 @@
       for(let i=0;i<=segR;i++){
         const theta = i/(segR)*TWO_PI
         const cosT = Math.cos(theta), sinT = Math.sin(theta)
-        // spiral target phi along tube where groove should be centered (proportional to theta)
+        
         const targetPhiForTheta = (theta * grooveTurns) % TWO_PI
         for(let j=0;j<=segr;j++){
           const phi = j/(segr)*TWO_PI
           const cosP = Math.cos(phi), sinP = Math.sin(phi)
-          // compute angular distance between this phi and the spiral path at this theta
+          
           const dphi = angleDiff(phi, targetPhiForTheta)
-          // gaussian-like groove profile (smooth, rounded edges)
+          
           const groove = -grooveDepth * Math.exp(- (dphi*dphi) / (2 * grooveWidth * grooveWidth))
 
-          // center of tube circle for this theta
+          
           const cx = R * cosT, cy = R * sinT, cz = 0
-          // adjusted radial offset: tube radius modulated by groove (applies in radial direction)
+          
           const radial = r * cosP + groove
           const x = (R + radial) * cosT
           const y = (R + radial) * sinT
           const z = r * sinP * scaleZ
           positions.push(x,y,z)
 
-          // compute normal by subtracting center of tube (approximate smooth normal)
+          
           let nx = x - cx, ny = y - cy, nz = z - cz
           const len = Math.hypot(nx,ny,nz) || 1
           nx/=len; ny/=len; nz/=len
@@ -95,14 +95,14 @@
       return {positions:new Float32Array(positions), normals:new Float32Array(normals), uvs:new Float32Array(uvs), indices:new Uint16Array(indices)}
     }
 
-    // parameters tuned to look like a human finger ring with a smooth spiral groove
-    // increased tube radius for a thicker band and increased profile height
+    
+    
     const tor = createTorus(
-    1.0,    // radio del anillo
-    0.16,   // fino (no ancho)
+    1.0,    
+    0.16,   
     128,
     80,
-    1.6,    // ALTO tipo corona
+    1.6,    
     0.05,
     0.45,
     1.0
@@ -117,9 +117,9 @@
     const uvBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,uvBuf); gl.bufferData(gl.ARRAY_BUFFER, tor.uvs, gl.STATIC_DRAW); gl.enableVertexAttribArray(attUv); gl.vertexAttribPointer(attUv,2,gl.FLOAT,false,0,0)
     const ib = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, tor.indices, gl.STATIC_DRAW)
 
-    // texture
+    
     const texture = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, texture); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
-    // placeholder 1x1
+    
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([180,220,200,255]))
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 
@@ -127,7 +127,7 @@
       const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = ()=>{
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-        // If image is power of two in both dimensions we can generate mipmaps and use repeat/wrap.
+        
         const isPowerOf2 = (v) => (v & (v - 1)) === 0;
         if (isPowerOf2(img.width) && isPowerOf2(img.height)){
           gl.generateMipmap(gl.TEXTURE_2D);
@@ -135,7 +135,7 @@
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
         } else {
-          // NPOT textures: no mipmaps, clamp to edge
+          
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -145,11 +145,11 @@
       img.src = url
     }
 
-    // choose texture: query param ?tex=URL else /static/texture.jpg
+    
     const params = new URLSearchParams(location.search); const texUrl = params.get('tex') || '/static/doro.jpg'
     loadTextureFrom(texUrl)
 
-    // matrices
+    
     function perspective(out, fovy, aspect, near, far){ const f = 1/Math.tan(fovy/2); out[0]=f/aspect; out[1]=0; out[2]=0; out[3]=0; out[4]=0; out[5]=f; out[6]=0; out[7]=0; out[8]=0; out[9]=0; out[10]=(far+near)/(near-far); out[11]=-1; out[12]=0; out[13]=0; out[14]=(2*far*near)/(near-far); out[15]=0 }
     function multiply(a,b){ const o = new Float32Array(16); for(let i=0;i<4;i++){ for(let j=0;j<4;j++){ let s=0; for(let k=0;k<4;k++) s+=a[k*4 + j]*b[i*4 + k]; o[i*4 + j]=s }} return o }
     function identity(){ const m = new Float32Array(16); m[0]=1; m[5]=1; m[10]=1; m[15]=1; return m }
@@ -161,7 +161,7 @@
     let then = 0; let rotationY = 0; let rotationX = -0.15; let camDist = 3.6
     let isPointerDown = false; let lastX = 0; let lastY = 0; let autoRotate = true; const autoSpeed = 0.6
 
-    // pointer / mouse / touch controls
+    
     function onPointerDown(e){ isPointerDown = true; autoRotate = false; const p = e.touches? e.touches[0] : e; lastX = p.clientX; lastY = p.clientY; }
     function onPointerMove(e){ if(!isPointerDown) return; const p = e.touches? e.touches[0] : e; const dx = p.clientX - lastX; const dy = p.clientY - lastY; lastX = p.clientX; lastY = p.clientY; rotationY += dx * 0.01; rotationX += dy * 0.01; rotationX = Math.max(-1.3, Math.min(1.3, rotationX)); }
     function onPointerUp(){ isPointerDown = false; setTimeout(()=>{ autoRotate = true }, 1800) }
@@ -176,7 +176,7 @@
       gl.enable(gl.DEPTH_TEST); gl.clearColor(0.03,0.03,0.02,1); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT)
       const aspect = canvas.width / canvas.height; const proj = new Float32Array(16); perspective(proj, Math.PI/3, aspect, 0.1, 100)
       const cam = lookAt([0,1.2,camDist],[0,0,0],[0,1,0])
-      // apply rotations from user + small auto-rotation
+      
       const model = rotateX(rotateY(identity(), rotationY), rotationX)
       const mvp = multiply(proj, multiply(cam, model))
       gl.useProgram(prog)
@@ -193,7 +193,7 @@
     requestAnimationFrame(render)
   }
 
-  // start renderer when page ready
+  
   if (document.readyState === 'complete' || document.readyState === 'interactive'){
     startRenderer(); setTimeout(playFinalSound, 160)
   } else { window.addEventListener('DOMContentLoaded', ()=>{ startRenderer(); setTimeout(playFinalSound,160) }) }
